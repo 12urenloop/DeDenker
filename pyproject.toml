@@ -1,0 +1,16 @@
+[tool.poetry]
+name = "auguste"
+version = "0.1.0"
+description = "A HMM lapper for Telraam using the API"
+authors = ["Your Name <you@example.com>"]
+license = "MIT"
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.11"
+hmmlearn = "^0.2.8"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
