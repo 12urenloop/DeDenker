@@ -1,5 +1,5 @@
 [tool.poetry]
-name = "auguste"
+name = "De Denker"
 version = "0.1.0"
 description = "A HMM lapper for Telraam using the API"
 authors = ["Your Name <you@example.com>"]
