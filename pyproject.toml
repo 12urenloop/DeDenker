@@ -9,6 +9,8 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.10"
 hmmlearn = "^0.2.8"
+requests = "^2.28.2"
+colorlog = "^6.7.0"
 
 
 [build-system]
