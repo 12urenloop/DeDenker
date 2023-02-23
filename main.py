@@ -6,8 +6,7 @@ from hmmlearn.base import ConvergenceMonitor
 from hmmlearn.hmm import CategoricalHMM
 from requests import get as _get, post
 
-from config import TELRAAM_URL, LAP_SOURCE_ID, RONNY_COUNT
-
+from config import TELRAAM_URL, RONNY_COUNT
 from static_probabilities import START_PROBABILITIES_12UL, EMISSION_PROBABILITIES_12UL, TRANSITION_PROBABILITIES_12UL
 
 handler = colorlog.StreamHandler()
@@ -16,10 +15,6 @@ handler.setFormatter(colorlog.ColoredFormatter('%(log_color)s%(levelname)s\t%(me
 logger = colorlog.getLogger('example')
 logger.addHandler(handler)
 logger.setLevel('DEBUG')
-
-# from fetcher import fetch_detections
-
-# Initialize Stuff
 
 
 # Fetch data from cache or Telraam
@@ -39,7 +34,7 @@ print(len(detections))
 while True:
     start = time()
 
-    # detections: list = sorted(get('detection'), key=lambda x: x["timestamp"])
+    detections: list = sorted(get('detection'), key=lambda x: x["timestamp"])
     stations: list = sorted(get('station'), key=lambda x: x["id"])
     teams: list = get('team')
     baton_switchovers: list = sorted(get('batonswitchover'), key=lambda x: x["timestamp"])
@@ -75,7 +70,7 @@ while True:
     station_to_emission = {v: k for k, v in enumerate([station["id"] for station in stations])}
 
     # If last training was more than 5 minutes ago, Train again
-    if model is None or time() - last_training > (5 * 60):
+    if model is None or time() - last_training > 30:  # (5 * 60):
         logger.info(f"Starting training on {len(detections)} detections")
 
         # Adapt the detection data to the required format.
