@@ -1,16 +1,17 @@
 """
 Weldegelijk fetching van detecties 
 """
-from requests import get
+
+from requests import get as _get, post
+from config import TELRAAM_URL
 import json
 
-TELRAAM_URL = "http://telraam:8080"
 _cached_detections = []
 
 #TODO: mss Exception handling bij mislukte requests (in functie get_json dan).
 
-def get_json(url:str):
-    return requests.get(f"{TELRAAM_URL}/{url}").json()
+#def get_json(url:str):
+    return _get(f"{TELRAAM_URL}/{url}").json()
 
 def get_detections(): 
     #use next id,starting from last id + 1
