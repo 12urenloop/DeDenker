@@ -6,7 +6,7 @@ from hmmlearn.base import ConvergenceMonitor
 from hmmlearn.hmm import CategoricalHMM
 from requests import get as _get, post
 
-from config import TELRAAM_URL, LAP_SOURCE_ID
+from config import TELRAAM_URL, LAP_SOURCE_ID, RONNY_COUNT
 
 from static_probabilities import START_PROBABILITIES_12UL, EMISSION_PROBABILITIES_12UL, TRANSITION_PROBABILITIES_12UL
 
@@ -69,7 +69,7 @@ while True:
                 else:
                     current_detections.append(detection)
 
-    # Our station ids are not usable as detection identifier. These need to go from 0..n with n the number of stations.
+    # Our station ids are not usable as detection identifier. These need to go from 0..n-1 with n the number of stations.
     # To achieve this we map the station to a unique id in this range so this can be used by hmmlearn
     # for training and decoding.
     station_to_emission = {v: k for k, v in enumerate([station["id"] for station in stations])}
@@ -87,7 +87,7 @@ while True:
 
         # Set up the model. We start from probabilities retrieved from the last event.
         # This should help us predict correct laps when limited data is available in the beginning of the event.
-        model = CategoricalHMM(n_components=7, n_iter=1000, init_params="", implementation="scaling")
+        model = CategoricalHMM(n_components=RONNY_COUNT, n_iter=1000, init_params="", implementation="scaling")
         model.transmat_ = TRANSITION_PROBABILITIES_12UL.copy()
         model.emissionprob_ = EMISSION_PROBABILITIES_12UL.copy()
         model.startprob_ = START_PROBABILITIES_12UL.copy()
@@ -107,7 +107,7 @@ while True:
     else:
         logger.debug("Training timeout not reached, continuing with previous model")
 
-    half = 7 // 2
+    half = RONNY_COUNT // 2
 
     team_laps: list[dict] = []
 
@@ -122,7 +122,7 @@ while True:
 
         prev = path[0]
         for i, segment in enumerate(path[1:]):
-            delta = half - (half - (segment - prev)) % 7
+            delta = half - (half - (segment - prev)) % RONNY_COUNT
             if delta > 0 and prev > segment:
                 laps.append({
                     'timestamp': team_detections[team["id"]][i + 1]["timestamp"]

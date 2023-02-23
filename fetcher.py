@@ -2,7 +2,6 @@
 Weldegelijk fetching van detecties 
 """
 from requests import get
-from os.path import isfile
 import json
 
 TELRAAM_URL = "http://telraam:8080"
