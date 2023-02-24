@@ -4,10 +4,11 @@ import colorlog
 import numpy as np
 from hmmlearn.base import ConvergenceMonitor
 from hmmlearn.hmm import CategoricalHMM
-from requests import get as _get, post
+from requests import post
 
-from config import TELRAAM_URL, RONNY_COUNT
+from config import TELRAAM_URL, RONNY_COUNT, SLEEP_DURATION
 from static_probabilities import START_PROBABILITIES_12UL, EMISSION_PROBABILITIES_12UL, TRANSITION_PROBABILITIES_12UL
+from telraam_api import TelraamAPI
 
 handler = colorlog.StreamHandler()
 handler.setFormatter(colorlog.ColoredFormatter('%(log_color)s%(levelname)s\t%(message)s'))
@@ -16,11 +17,7 @@ logger = colorlog.getLogger('example')
 logger.addHandler(handler)
 logger.setLevel('DEBUG')
 
-
-# Fetch data from cache or Telraam
-def get(url: str) -> list:
-    return _get(f'{TELRAAM_URL}/{url}').json()
-
+api: TelraamAPI = TelraamAPI()
 
 # The training timer, initialized after initial training
 last_training: float = 0
@@ -28,17 +25,14 @@ last_training: float = 0
 # The model used for decoding
 model: CategoricalHMM | None = None
 
-detections: list = sorted(get('detection'), key=lambda x: x["timestamp"])
-print(len(detections))
-
 while True:
     start = time()
 
-    detections: list = sorted(get('detection'), key=lambda x: x["timestamp"])
-    stations: list = sorted(get('station'), key=lambda x: x["id"])
-    teams: list = get('team')
-    baton_switchovers: list = sorted(get('batonswitchover'), key=lambda x: x["timestamp"])
-    batons: list = get('baton')
+    detections: list = sorted(api.get_detections(), key=lambda x: x["timestamp"])
+    stations: list = sorted(api.get_stations(), key=lambda x: x["id"])
+    teams: list = api.get_teams()
+    baton_switchovers: list = sorted(api.get_baton_switchovers(), key=lambda x: x["timestamp"])
+    batons: list = api.get_batons()
 
     # Process the detections
 
@@ -132,10 +126,10 @@ while True:
         team_laps.append({'teamId': team["id"], 'laps': laps})
 
     # do_push(laps)
-    post(f"{TELRAAM_URL}/lappers/external/laps", json=team_laps)
+    api.post_laps(team_laps)
 
     logger.info(f'Lapper took {time() - start:.2f} seconds for this iteration')
 
-    logger.debug(f'Going to sleep for 10 seconds')
+    logger.debug(f'Going to sleep for {SLEEP_DURATION} seconds')
 
-    sleep(10)
+    sleep(SLEEP_DURATION)
