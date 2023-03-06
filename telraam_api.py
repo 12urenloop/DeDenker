@@ -40,4 +40,4 @@ class TelraamAPI:
         return self._get('batonswitchover')
 
     def post_laps(self, team_laps: list[dict]) -> None:
-        post(f'{TELRAAM_URL}/lapper/external/laps', json=team_laps)
+        post(f'{TELRAAM_URL}/lappers/external/laps', json=team_laps)
