@@ -64,7 +64,7 @@ while True:
                 else:
                     current_detections.append(detection)
 
-    # Our station ids are not usable as detection identifier. These need to go from 0..n-1 with n the number of stations.
+    # Our station ids are not usable as detection identifier. These need to go from 0..n-1 with n the number of stations
     # To achieve this we map the station to a unique id in this range so this can be used by hmmlearn
     # for training and decoding.
     station_to_emission = {v: k for k, v in enumerate([station["id"] for station in stations])}

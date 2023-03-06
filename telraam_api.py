@@ -25,6 +25,7 @@ class TelraamAPI:
         while len(new_detections) == limit:
             self._detections_cache += new_detections
             new_detections = self._get_detections_batch(limit)
+        self._detections_cache += new_detections
         return self._detections_cache.copy()
 
     def get_stations(self) -> list[dict]:
