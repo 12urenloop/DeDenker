@@ -4,9 +4,8 @@ import colorlog
 import numpy as np
 from hmmlearn.base import ConvergenceMonitor
 from hmmlearn.hmm import CategoricalHMM
-from requests import post
 
-from config import TELRAAM_URL, RONNY_COUNT, SLEEP_DURATION
+from config import RONNY_COUNT, SLEEP_DURATION
 from static_probabilities import START_PROBABILITIES_12UL, EMISSION_PROBABILITIES_12UL, TRANSITION_PROBABILITIES_12UL
 from telraam_api import TelraamAPI
 
@@ -45,8 +44,15 @@ while True:
         while switchover_index < len(baton_switchovers) and baton_switchovers[switchover_index]["timestamp"] < \
                 detection["timestamp"]:
             switchover = baton_switchovers[switchover_index]
-            baton_team[switchover["newBatonId"]] = team_by_id[switchover["teamId"]]
-            # TODO: deassign baton when switching away from previous assignment
+            if switchover["previousBatonId"] in baton_team:
+                if baton_team[switchover["previousBatonId"]] == team_by_id[switchover["teamId"]]:
+                    del baton_team[switchover["previousBatonId"]]
+                else:
+                    logger.warning(
+                        f"baton ({switchover['previousBatonId']}) was not assigned to team {switchover['teamId']} at time of de assignment"
+                    )
+            if switchover["newBatonId"] is not None:
+                baton_team[switchover["newBatonId"]] = team_by_id[switchover["teamId"]]
             switchover_index += 1
 
         if detection["batonId"] in baton_team:
