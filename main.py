@@ -2,6 +2,7 @@ from time import time, sleep
 
 import colorlog
 import numpy as np
+import requests.exceptions
 from hmmlearn.base import ConvergenceMonitor
 from hmmlearn.hmm import CategoricalHMM
 
@@ -27,11 +28,17 @@ model: CategoricalHMM | None = None
 while True:
     start = time()
 
-    detections: list = sorted(api.get_detections(), key=lambda x: x["timestamp"])
-    stations: list = sorted(api.get_stations(), key=lambda x: x["id"])
-    teams: list = api.get_teams()
-    baton_switchovers: list = sorted(api.get_baton_switchovers(), key=lambda x: x["timestamp"])
-    batons: list = api.get_batons()
+    try:
+        detections: list = sorted(api.get_detections(), key=lambda x: x["timestamp"])
+        stations: list = sorted(api.get_stations(), key=lambda x: x["id"])
+        teams: list = api.get_teams()
+        baton_switchovers: list = sorted(api.get_baton_switchovers(), key=lambda x: x["timestamp"])
+        batons: list = api.get_batons()
+    except requests.exceptions.ConnectionError as e:
+        logger.error(f"Failed to {e.request.method} to {e.request.url}")
+        logger.debug(f"Going to sleep for {SLEEP_DURATION} seconds")
+        sleep(SLEEP_DURATION)
+        continue
 
     # Process the detections
 
@@ -138,7 +145,13 @@ while True:
         team_laps.append({'teamId': team["id"], 'laps': laps})
 
     # Publish the laps to Telraam
-    api.post_laps(team_laps)
+    try:
+        api.post_laps(team_laps)
+    except requests.exceptions.ConnectionError as e:
+        logger.error(f"Failed to {e.request.method} to {e.request.url}")
+        logger.debug(f"Going to sleep for {SLEEP_DURATION} seconds")
+        sleep(SLEEP_DURATION)
+        continue
 
     logger.info(f'Lapper took {time() - start:.2f} seconds for this iteration')
 
