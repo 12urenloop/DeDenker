@@ -83,7 +83,7 @@ while True:
         # Adapt the detection data to the required format.
         training_data = [
             [[station_to_emission[detection["stationId"]]] for detection in team_detections[i]]
-            for i in team_detections.keys()
+            for i in team_detections.keys() if len(team_detections[i]) != 0
         ]
         training_data_lengths = [len(x) for x in training_data]
 
@@ -116,6 +116,10 @@ while True:
     team_laps: list[dict] = []
 
     for team in teams:
+        # Skip if team has no detections
+        if len(team_detections[team["id"]]) == 0:
+            continue
+
         # The raw detection data for the team
         decode_data = np.array([
             [station_to_emission[detection["stationId"]] for detection in team_detections[team["id"]]]
