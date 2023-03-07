@@ -102,40 +102,46 @@ while True:
     else:
         logger.debug("Training timeout not reached, continuing with previous model")
 
+    # The amount of stations that span half a lap
     half = RONNY_COUNT // 2
 
+    # The final laps
     team_laps: list[dict] = []
 
     for team in teams:
+        # The raw detection data for the team
         decode_data = np.array([
             [station_to_emission[detection["stationId"]] for detection in team_detections[team["id"]]]
         ])
 
+        # The decoded viterbi path using our trained model
         _, path = model.decode(decode_data)
 
+        # The laps for the current team
         laps: list[dict] = []
 
         prev = path[0]
         for i, segment in enumerate(path[1:]):
             delta = half - (half - (segment - prev)) % RONNY_COUNT
-            if delta > 0 and prev > segment:
+            if delta > 0 and prev > segment:  # We moved forwards and crossed the start
                 laps.append({
                     'timestamp': team_detections[team["id"]][i + 1]["timestamp"]
                 })
-            elif delta < 0 and prev < segment:
+            elif delta < 0 and prev < segment:  # We moved backwards and crossed the start
                 if len(laps) > 0:
                     laps.pop()
             prev = segment
 
         logger.debug(f"Counted {len(laps)} laps for {team['name']}")
 
+        # Save laps as final laps for this iteration
         team_laps.append({'teamId': team["id"], 'laps': laps})
 
-    # do_push(laps)
+    # Publish the laps to Telraam
     api.post_laps(team_laps)
 
     logger.info(f'Lapper took {time() - start:.2f} seconds for this iteration')
 
+    # Wait a bit for new iterations to roll in
     logger.debug(f'Going to sleep for {SLEEP_DURATION} seconds')
-
     sleep(SLEEP_DURATION)
