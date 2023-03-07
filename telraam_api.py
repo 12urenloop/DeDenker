@@ -42,3 +42,6 @@ class TelraamAPI:
 
     def post_laps(self, team_laps: list[dict]) -> None:
         post(f'{TELRAAM_URL}/lappers/external/laps', json=team_laps)
+
+    def post_stats(self, stats: dict[str, list]) -> None:
+        post(f'{TELRAAM_URL}/lappers/external/stats', json=stats)

@@ -94,7 +94,6 @@ while True:
         model.emissionprob_ = EMISSION_PROBABILITIES_12UL.copy()
         model.startprob_ = START_PROBABILITIES_12UL.copy()
 
-        # TODO: is this needed? We don't make any graphs. Maybe nice to have some stats?
         model.monitor_ = ConvergenceMonitor(model.monitor_.tol, model.monitor_.n_iter, model.monitor_.verbose)
 
         # Train the model
@@ -103,6 +102,12 @@ while True:
         logger.info(
             f"Training converged after {model.monitor_.iter} iterations with error {model.monitor_.history[-1]}"
         )
+
+        api.post_stats({
+            'errorHistory': list(model.monitor_.history),
+            'transitionMatrix': [list(i) for i in model.transmat_],
+            'emissionMatrix': [list(i) for i in model.emissionprob_]
+        })
 
         # Reset the training timer
         last_training = time()
