@@ -7,6 +7,7 @@ from hmmlearn.base import ConvergenceMonitor
 from hmmlearn.hmm import CategoricalHMM
 
 from config import RONNY_COUNT, SLEEP_DURATION
+from models import Detection
 from static_probabilities import START_PROBABILITIES_12UL, EMISSION_PROBABILITIES_12UL, TRANSITION_PROBABILITIES_12UL
 from telraam_api import TelraamAPI
 
@@ -29,7 +30,7 @@ while True:
     start = time()
 
     try:
-        detections: list = sorted(api.get_detections(), key=lambda x: x["timestamp"])
+        detections: list[Detection] = sorted(api.get_detections(limit=1000), key=lambda x: x.timestamp)
         stations: list = sorted(api.get_stations(), key=lambda x: x["id"])
         teams: list = api.get_teams()
         baton_switchovers: list = sorted(api.get_baton_switchovers(), key=lambda x: x["timestamp"])
@@ -42,14 +43,14 @@ while True:
 
     # Process the detections
 
-    team_detections: dict[int, list] = {team["id"]: [] for team in teams}
+    team_detections: dict[int, list[Detection]] = {team["id"]: [] for team in teams}
     team_by_id: dict[int, dict] = {team["id"]: team for team in teams}
     baton_team: dict[int, dict] = {}
 
     switchover_index = 0
     for detection in detections:
         while switchover_index < len(baton_switchovers) and baton_switchovers[switchover_index]["timestamp"] < \
-                detection["timestamp"]:
+                detection.timestamp:
             switchover = baton_switchovers[switchover_index]
             if switchover["previousBatonId"] in baton_team:
                 if baton_team[switchover["previousBatonId"]] == team_by_id[switchover["teamId"]]:
@@ -62,11 +63,11 @@ while True:
                 baton_team[switchover["newBatonId"]] = team_by_id[switchover["teamId"]]
             switchover_index += 1
 
-        if detection["batonId"] in baton_team:
-            if detection["rssi"] > -80:
-                current_detections = team_detections[baton_team[detection["batonId"]]["id"]]
-                if len(current_detections) > 0 and current_detections[-1]["timestamp"] == detection["timestamp"]:
-                    if current_detections[-1]["rssi"] < detection["rssi"]:
+        if detection.baton_id in baton_team:
+            if detection.rssi > -80:
+                current_detections = team_detections[baton_team[detection.baton_id]["id"]]
+                if len(current_detections) > 0 and current_detections[-1].timestamp == detection.timestamp:
+                    if current_detections[-1].rssi < detection.rssi:
                         current_detections[-1] = detection
                 else:
                     current_detections.append(detection)
@@ -82,7 +83,7 @@ while True:
 
         # Adapt the detection data to the required format.
         training_data = [
-            [[station_to_emission[detection["stationId"]]] for detection in team_detections[i]]
+            [[station_to_emission[detection.station_id]] for detection in team_detections[i]]
             for i in team_detections.keys() if len(team_detections[i]) != 0
         ]
         training_data_lengths = [len(x) for x in training_data]
@@ -127,7 +128,7 @@ while True:
 
         # The raw detection data for the team
         decode_data = np.array([
-            [station_to_emission[detection["stationId"]] for detection in team_detections[team["id"]]]
+            [station_to_emission[detection.station_id] for detection in team_detections[team["id"]]]
         ])
 
         # The decoded viterbi path using our trained model
@@ -141,7 +142,7 @@ while True:
             delta = half - (half - (segment - prev)) % RONNY_COUNT
             if delta > 0 and prev > segment:  # We moved forwards and crossed the start
                 laps.append({
-                    'timestamp': team_detections[team["id"]][i + 1]["timestamp"]
+                    'timestamp': team_detections[team["id"]][i + 1].timestamp
                 })
             elif delta < 0 and prev < segment:  # We moved backwards and crossed the start
                 if len(laps) > 0:

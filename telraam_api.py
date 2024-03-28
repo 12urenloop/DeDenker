@@ -1,6 +1,7 @@
 from requests import get, post
 
 from config import TELRAAM_URL
+from models import Detection
 
 
 class TelraamAPI:
@@ -10,17 +11,17 @@ class TelraamAPI:
     """
 
     def __init__(self):
-        self._detections_cache: list[dict] = []
+        self._detections_cache: list[Detection] = []
 
     def _get(self, resource: str) -> list[dict]:
         response = get(f'{TELRAAM_URL}/{resource}')
         return response.json()
 
-    def _get_detections_batch(self, limit) -> list[dict]:
-        last_id: int = self._detections_cache[-1]["id"] if len(self._detections_cache) != 0 else 0
-        return self._get(f'detection/since/{last_id}?limit={limit}')
+    def _get_detections_batch(self, limit) -> list[Detection]:
+        last_id: int = self._detections_cache[-1].id if len(self._detections_cache) != 0 else 0
+        return [Detection(d["id"], d["timestamp"], d["batonId"], d["stationId"], d["rssi"]) for d in self._get(f'detection/since/{last_id}?limit={limit}') ]
 
-    def get_detections(self, limit=1000):
+    def get_detections(self, limit=1000) -> list[Detection]:
         new_detections = self._get_detections_batch(limit)
         while len(new_detections) == limit:
             self._detections_cache += new_detections
