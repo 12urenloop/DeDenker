@@ -22,6 +22,10 @@ RUN pip install -r requirements.txt
 
 FROM python:3.13.2-alpine3.21
 
+WORKDIR /de-denker
+
+RUN apk add --no-cache libgomp libstdc++-dev
+
 COPY --from=build /usr/local/lib/python3.13/site-packages /usr/local/lib/python3.13/site-packages
 COPY --from=build /usr/local/bin /usr/local/bin
 
