@@ -9,7 +9,7 @@ Counting Laps using a custom trained Hidden Markov Model using the Baum Welch al
 One option is to use the prebuild docker image: `ghcr.io/12urenloop/dedenker:main`.
 A possible `docker-compose.yml` can be the next one. Adapt where needed.
 
-```
+```yml
 services:
   de-denker:
     image: ghcr.io/12urenloop/dedenker:main
@@ -24,12 +24,12 @@ You will need to run your own [Telraam](https://github.com/12urenloop/Telraam) i
 
 Create a virtualenv
 
-```shell
+```sh
 python3 -m venv venv
 . venv/bin/activate
 ```
 
-```shell
+```sh
 pip install poetry
 poetry install
 ```
