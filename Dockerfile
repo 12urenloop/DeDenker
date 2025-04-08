@@ -16,5 +16,5 @@ FROM base AS artifact
 RUN apk add --no-cache libgomp libstdc++
 COPY --from=build /usr/local/lib/python3.13/site-packages /usr/local/lib/python3.13/site-packages
 COPY --from=build /usr/local/bin /usr/local/bin
-COPY config.py main.py models.py static_probabilities.py telraam_api.py ./
-CMD ["python", "main.py"]
+COPY ./dedenker ./dedenker
+CMD ["python", "-m", "dedenker.main"]

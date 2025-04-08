@@ -1,8 +1,7 @@
 from requests import get, post
 
-from config import TELRAAM_URL
-from models import Detection
-
+from dedenker.config import TELRAAM_URL
+from dedenker.models import Detection
 
 class TelraamAPI:
     """
