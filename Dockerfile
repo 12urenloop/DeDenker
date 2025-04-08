@@ -1,5 +1,5 @@
 FROM python:3.13.2-alpine3.21 AS base
-WORKDIR /de-denker
+WORKDIR /dedenker
 
 FROM base AS requirements
 RUN pip install poetry-plugin-export
@@ -9,7 +9,7 @@ RUN poetry export --without-hashes --format=requirements.txt > requirements.txt
 FROM base AS build
 RUN apk add --no-cache build-base
 ENV PYTHONDONTWRITEBYTECODE=1
-COPY --from=requirements /de-denker/requirements.txt .
+COPY --from=requirements /dedenker/requirements.txt .
 RUN pip install -r requirements.txt
 
 FROM base AS artifact
