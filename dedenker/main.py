@@ -1,15 +1,15 @@
-from time import time, sleep
+from time import sleep, time
 
 import colorlog
-import numpy as np
-import requests.exceptions
 from hmmlearn.base import ConvergenceMonitor
 from hmmlearn.hmm import CategoricalHMM
+import numpy as np
+import requests.exceptions
 
-from config import RONNY_COUNT, SLEEP_DURATION
-from models import Detection
-from static_probabilities import START_PROBABILITIES_12UL, EMISSION_PROBABILITIES_12UL, TRANSITION_PROBABILITIES_12UL
-from telraam_api import TelraamAPI
+from dedenker.config import RONNY_COUNT, SLEEP_DURATION
+from dedenker.models import Detection
+from dedenker.static_probabilities import TRANSITION_PROBABILITIES_12UL, START_PROBABILITIES_12UL, EMISSION_PROBABILITIES_12UL
+from dedenker.telraam_api import TelraamAPI
 
 handler = colorlog.StreamHandler()
 handler.setFormatter(colorlog.ColoredFormatter('%(log_color)s%(levelname)s\t%(message)s'))

@@ -1,20 +1,24 @@
 FROM python:3.13.2-alpine3.21 AS base
-WORKDIR /de-denker
 
-FROM base AS requirements
-RUN pip install poetry-plugin-export
-COPY pyproject.toml poetry.lock ./
-RUN poetry export --without-hashes --format=requirements.txt > requirements.txt
 
 FROM base AS build
-RUN apk add --no-cache build-base
-ENV PYTHONDONTWRITEBYTECODE=1
-COPY --from=requirements /de-denker/requirements.txt .
-RUN pip install -r requirements.txt
 
-FROM base AS artifact
-RUN apk add --no-cache libgomp libstdc++
-COPY --from=build /usr/local/lib/python3.13/site-packages /usr/local/lib/python3.13/site-packages
-COPY --from=build /usr/local/bin /usr/local/bin
-COPY config.py main.py models.py static_probabilities.py telraam_api.py ./
-CMD ["python", "main.py"]
+WORKDIR /dedenker
+
+RUN apk add --no-cache build-base
+RUN pip install poetry==2.1
+RUN poetry self add poetry-pyinstaller-plugin==1.4
+
+COPY pyproject.toml poetry.lock .
+RUN poetry install --no-root
+
+COPY dedenker/ dedenker/
+RUN PYTHONOPTIMIZE=2 poetry build --format=pyinstaller
+RUN mv dist/pyinstaller/musllinux_1_2_x86_64/dedenker dist/
+
+
+FROM scratch AS artifact
+COPY --from=base /lib/ld-musl-x86_64.so.1 /usr/lib/libz.so.1 /lib/
+COPY --from=base /tmp /tmp
+COPY --from=build /dedenker/dist/dedenker /dedenker
+CMD ["/dedenker"]
