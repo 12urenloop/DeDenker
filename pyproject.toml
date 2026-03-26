@@ -1,17 +1,22 @@
-[tool.poetry]
-package-mode = false
-name = "De Denker"
+[project]
+name = "DeDenker"
+version = "0.1.0"
 description = "A HMM lapper for Telraam using the API"
 license = "MIT"
-readme = "README.md"
-
-[tool.poetry.dependencies]
-python = "^3.11"
-hmmlearn = "^0.3.0"
-requests = "^2.31.0"
-colorlog = "^6.7.0"
-
+requires-python = ">=3.13"
+dependencies = [
+    "hmmlearn (>=0.3.3,<1.0.0)",
+    "requests (>=2.32.2,<3.0.0)",
+    "colorlog (>=6.9.0,<7.0.0)",
+]
 
 [build-system]
-requires = ["poetry-core"]
+requires = ["poetry-core>=2.0.0,<3.0.0"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry-pyinstaller-plugin]
+version = "6.12.0"
+
+[tool.poetry-pyinstaller-plugin.scripts.dedenker]
+source = "dedenker/main.py"
+type = "onefile"

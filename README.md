@@ -11,7 +11,7 @@ A possible `docker-compose.yml` can be the next one. Adapt where needed.
 
 ```yml
 services:
-  de-denker:
+  dedenker:
     image: ghcr.io/12urenloop/dedenker:main
     restart: unless-stopped
     environment:
