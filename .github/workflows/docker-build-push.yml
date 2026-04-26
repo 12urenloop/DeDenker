@@ -24,5 +24,6 @@ jobs:
         with:
           context: .
           tags: ${{ env.IMAGE_NAME }}:latest,${{ env.IMAGE_NAME }}:latest-${{ github.sha }}
+          push: true
           cache-from: type=gha
           cache-to: type=gha,mode=max
