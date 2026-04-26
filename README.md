@@ -22,14 +22,27 @@ You will need to run your own [Telraam](https://github.com/12urenloop/Telraam) i
 
 ## Development Setup
 
-Create a virtualenv
+Make sure `uv` is installed:
 
-```sh
-python3 -m venv venv
-. venv/bin/activate
+```console
+command -v uv || (curl -LsSf https://astral.sh/uv/install.sh | sh)
 ```
 
-```sh
-pip install poetry
-poetry install
+Create a `.venv`:
+
+```console
+uv venv --python=python3.14
+source .venv/bin/activate
+```
+
+Install dependencies:
+
+```console
+uv sync --frozen
+```
+
+Run DeDenker:
+
+```console
+python -m dedenker
 ```

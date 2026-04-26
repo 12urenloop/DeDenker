@@ -5,18 +5,12 @@ description = "A HMM lapper for Telraam using the API"
 license = "MIT"
 requires-python = ">=3.13"
 dependencies = [
+    "colorlog (>=6.9.0,<7.0.0)",
     "hmmlearn (>=0.3.3,<1.0.0)",
     "requests (>=2.32.2,<3.0.0)",
-    "colorlog (>=6.9.0,<7.0.0)",
 ]
 
-[build-system]
-requires = ["poetry-core>=2.0.0,<3.0.0"]
-build-backend = "poetry.core.masonry.api"
-
-[tool.poetry-pyinstaller-plugin]
-version = "6.12.0"
-
-[tool.poetry-pyinstaller-plugin.scripts.dedenker]
-source = "dedenker/main.py"
-type = "onefile"
+[dependency-groups]
+dev = [
+    "pyinstaller (>=6.20.0,<7.0.0)",
+]
