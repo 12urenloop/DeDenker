@@ -7,7 +7,7 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  IMAGE_NAME: 12urenloop/dedenker
+  IMAGE_NAME: ghcr.io/12urenloop/dedenker
 
 jobs:
   build:
