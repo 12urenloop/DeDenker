@@ -12,7 +12,7 @@ A possible `docker-compose.yml` can be the next one. Adapt where needed.
 ```yml
 services:
   dedenker:
-    image: ghcr.io/12urenloop/dedenker:main
+    image: ghcr.io/12urenloop/dedenker
     restart: unless-stopped
     environment:
       - "DD_TELRAAM_URL=http://telraam.local:8080"
